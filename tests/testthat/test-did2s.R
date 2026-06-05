@@ -73,3 +73,36 @@ test_that("did2s_event_study is invariant to column names", {
   expect_equal(es$coefficients$estimate, es2$coefficients$estimate)
   expect_equal(es$pretrends.test$p.value, es2$pretrends.test$p.value)
 })
+
+test_that("did2s_event_study passes cluster.var to the post-average", {
+  pnl <- data.table::copy(data.table::as.data.table(panel))
+  pnl[, grp := id %% 5L]   # coarser clustering than the unit id
+
+  es_id <- did2s_event_study(pnl, "y", "g", "year", "id",
+                             pre.window = -4:-1, post.window = 0:3,
+                             cluster.var = "id", verbose = FALSE)
+  es_grp <- did2s_event_study(pnl, "y", "g", "year", "id",
+                              pre.window = -4:-1, post.window = 0:3,
+                              cluster.var = "grp", verbose = FALSE)
+
+  # Different clustering changes the post-average standard error.
+  expect_false(isTRUE(all.equal(es_id$avg.post.effect$std.error,
+                                es_grp$avg.post.effect$std.error)))
+})
+
+test_that("did2s preparation fails cleanly without sufficient support", {
+  # All units adopt in the same late period with no never-treated units, so the
+  # support window leaves no post-treatment observations.
+  pnl <- data.table::CJ(id = 1:30, year = 2000:2010)
+  pnl[, g := 2009]
+  pnl[, y := rnorm(.N)]
+
+  prepared <- prepare.did2s.data(pnl, "y", "g", "year", "id",
+                                 pre.window = -4:-1, post.window = 0:3)
+  expect_match(prepared$status, "^failed")
+  expect_error(
+    did2s_event_study(pnl, "y", "g", "year", "id",
+                      pre.window = -4:-1, post.window = 0:3, verbose = FALSE),
+    "preparation failed"
+  )
+})

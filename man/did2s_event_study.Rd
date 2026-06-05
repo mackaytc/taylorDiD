@@ -53,6 +53,9 @@ chi-square Wald p-value. The post-treatment average is the auxiliary static
 DiD on the never-/not-yet-/treated-in-window subset (see \code{\link[=post_avg_did]{post_avg_did()}}), as
 in the BJS estimator. Never-treated units are coded via \code{\link[=is_never_treated]{is_never_treated()}}
 (\code{NA}/\code{Inf}/non-positive). The omitted event-study reference is event time -1.
+The estimation sample keeps never-treated units and treated observations whose
+event time lies in \code{pre.window} or \code{post.window}; treated observations outside
+that window are dropped so they do not enter the reference category.
 }
 \examples{
 panel <- readRDS(system.file("extdata", "synthetic_panel.rds",

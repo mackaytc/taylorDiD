@@ -24,9 +24,9 @@ utils::globalVariables(c(
   ".",
   ".g", ".t", ".id",
   ".g.temp", ".t.temp", ".y.temp", ".id.temp", ".is.pre", ".y.detrended",
-  ".first.treat", ".treat.static", "intercept", "slope",
+  ".treat.static", "intercept", "slope",
   "event.time", "term", "estimate", "std.error", "p.value",
-  "conf.low", "conf.high", "is.treated", "first.treat.time",
+  "conf.low", "conf.high", "is.treated",
   "treat.did2s", "rel.year.did2s",
   "n.areas", "n.not.yet.treated.or.inf", "n.already.treated", "n.post.treated"
 ))

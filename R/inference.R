@@ -118,21 +118,30 @@ pretreat_mean <- function(data, yname, gname, tname) {
   mean(dt[[yname]][treated & pre], na.rm = TRUE)
 }
 
-# Pre-treatment outcome mean for the dCDH case, where treatment is a level
-# (dname) rather than a cohort. First-treatment time is the earliest period a
-# unit has positive treatment; pre-treatment observations precede it.
-pretreat_mean_dyn <- function(data, yname, dname, tname, idname) {
-  dt <- as.data.table(copy(data))
-  dt[, .first.treat := {
-    d <- get(dname)
-    tt <- get(tname)
-    if (any(d > 0, na.rm = TRUE)) as.numeric(min(tt[d > 0], na.rm = TRUE))
-    else NA_real_
+# Per-unit first treatment change for the dCDH (level-treatment) case: the
+# earliest period a unit's treatment differs from its first-period level, or NA
+# if it never changes. dCDH identifies effects from these switchers, so a unit
+# with a constant treatment (including a constant nonzero level) is not treated.
+dcdh_first_change <- function(data, dname, tname, idname) {
+  dt <- as.data.table(data)
+  dt[, {
+    o <- order(get(tname))
+    d <- get(dname)[o]
+    tt <- get(tname)[o]
+    changed <- which(d != d[1])
+    list(first.change = if (length(changed)) as.numeric(tt[changed[1]])
+                        else NA_real_)
   }, by = c(idname)]
+}
 
-  treated <- !is.na(dt$.first.treat)
-  pre <- dt[[tname]] < dt$.first.treat
-  mean(dt[[yname]][treated & pre], na.rm = TRUE)
+# Pre-treatment outcome mean for the dCDH case: the mean outcome over switchers'
+# observations that precede their first treatment change.
+pretreat_mean_dyn <- function(data, yname, dname, tname, idname) {
+  dt <- as.data.table(data)
+  changes <- dcdh_first_change(dt, dname, tname, idname)
+  dt <- merge(dt, changes, by = idname, all.x = TRUE)
+  pre <- !is.na(dt$first.change) & dt[[tname]] < dt$first.change
+  mean(dt[[yname]][pre], na.rm = TRUE)
 }
 
 ################################################################################

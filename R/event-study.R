@@ -166,6 +166,8 @@ post_avg_did <- function(data, yname, gname, tname, idname, post.window,
   sub <- dt[keep]
 
   if (estimator == "bjs") {
+    # didimputation reads never-treated only as 0/NA.
+    sub[, (gname) := code_never_treated(get(gname), "zero")]
     fit <- didimputation::did_imputation(
       data = sub, yname = yname, gname = gname, tname = tname,
       idname = idname, cluster_var = cluster.var
@@ -182,7 +184,7 @@ post_avg_did <- function(data, yname, gname, tname, idname, post.window,
     fit <- did2s::did2s(
       data = sub, yname = yname, first_stage = first.stage,
       second_stage = ~ .treat.static, treatment = ".treat.static",
-      cluster_var = idname, verbose = FALSE
+      cluster_var = cluster.var, verbose = FALSE
     )
     est <- unname(coef(fit)[1])
     se <- sqrt(diag(vcov(fit)))[1]

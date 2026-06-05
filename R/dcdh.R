@@ -6,8 +6,8 @@
 # DIDmultiplegtDYN::did_multiplegt_dyn(). Provides a static effect
 # (did.simple.dyn) and an event study (did.event.study.dyn) that handle binary,
 # discrete, and continuous treatments. Treatment enters as a level (dname), not
-# a cohort, so these wrappers identify treated units via positive treatment and
-# use pretreat_mean_dyn().
+# a cohort, so switchers are units whose treatment changes from its first-period
+# level, and pre-treatment periods precede that first change.
 #
 # NOTE: the post-treatment average here is the mean of the dynamic effects (with
 # a conservative pooled SE), because the dCDH estimator has no clean static-DiD
@@ -123,10 +123,9 @@ did.simple.dyn <- function(data, yname, dname, tname, idname,
   ensure_polars()
   dt <- as.data.table(data)
 
-  unit.treated <- dt[, .(is.treated = any(get(dname) > 0, na.rm = TRUE)),
-                     by = c(idname)]
-  n.groups <- nrow(unit.treated)
-  n.treated <- sum(unit.treated$is.treated)
+  changes <- dcdh_first_change(dt, dname, tname, idname)
+  n.groups <- nrow(changes)
+  n.treated <- sum(!is.na(changes$first.change))
 
   raw <- DIDmultiplegtDYN::did_multiplegt_dyn(
     df = dt, outcome = yname, group = idname, time = tname, treatment = dname,
@@ -181,10 +180,9 @@ did.event.study.dyn <- function(data, yname, dname, tname, idname,
   ensure_polars()
   dt <- as.data.table(data)
 
-  unit.treated <- dt[, .(is.treated = any(get(dname) > 0, na.rm = TRUE)),
-                     by = c(idname)]
-  n.groups <- nrow(unit.treated)
-  n.treated <- sum(unit.treated$is.treated)
+  changes <- dcdh_first_change(dt, dname, tname, idname)
+  n.groups <- nrow(changes)
+  n.treated <- sum(!is.na(changes$first.change))
 
   raw <- DIDmultiplegtDYN::did_multiplegt_dyn(
     df = dt, outcome = yname, group = idname, time = tname, treatment = dname,

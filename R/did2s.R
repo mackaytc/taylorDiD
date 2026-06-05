@@ -25,9 +25,8 @@ event.term.name <- function(event.time) {
 # pre-window support, find the not-yet-treated support window, truncate to it
 # (recoding units treated after the window as never-treated), then add the
 # treatment indicator, relative-event-time, and one 0/1 dummy per event time.
-# Generalized from hardcoded year/g.year/area_uid to tname/gname/idname via the
-# internal canonical columns .g/.t/.id; the Inf never-treated convention is
-# folded into is_never_treated().
+# Works on internal canonical columns .g/.t/.id derived from gname/tname/idname;
+# never-treated units are identified by is_never_treated().
 # @noRd
 prepare.did2s.data <- function(panel.dt, yname, gname, tname, idname,
                                pre.window, post.window) {
@@ -92,13 +91,25 @@ prepare.did2s.data <- function(panel.dt, yname, gname, tname, idname,
   setnames(support.after, ".t", tname)
   dt[, c(".g", ".t", ".id") := NULL]
 
+  # did2s needs both treated and control observations and at least one active
+  # event dummy; without them the second stage has no usable variation.
+  has.controls <- any(dt$treat.did2s == 0)
+  has.treated <- any(dt$treat.did2s == 1)
+  dummy.active <- any(vapply(event.map$term,
+                             function(col) sum(dt[[col]]) > 0, logical(1)))
+  status <- if (nrow(dt) > 0 && has.controls && has.treated && dummy.active) {
+    "ok"
+  } else {
+    "failed_insufficient_support"
+  }
+
   list(
     data = dt, support = support.after, event.map = event.map,
     earliest.allowed.g = earliest.allowed.g,
     n.early.units.excluded = length(early.units),
     latest.support.year = latest.support.year,
     n.after.truncation.units.set.inf = length(after.truncation.units),
-    status = "ok"
+    status = status
   )
 }
 
@@ -139,6 +150,9 @@ extract.did2s.coefficients <- function(model, event.map) {
 #' DiD on the never-/not-yet-/treated-in-window subset (see [post_avg_did()]), as
 #' in the BJS estimator. Never-treated units are coded via [is_never_treated()]
 #' (`NA`/`Inf`/non-positive). The omitted event-study reference is event time -1.
+#' The estimation sample keeps never-treated units and treated observations whose
+#' event time lies in `pre.window` or `post.window`; treated observations outside
+#' that window are dropped so they do not enter the reference category.
 #'
 #' @param data Data frame or data.table.
 #' @param yname Outcome variable name (string).

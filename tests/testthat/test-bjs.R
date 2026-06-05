@@ -32,3 +32,20 @@ test_that("did.event.study with trends.lin runs and flags itself", {
   expect_s3_class(es, "taylorDiD_es")
   expect_true(isTRUE(es$trends.lin))
 })
+
+test_that("BJS treats negative never-treated codes like Inf", {
+  inf_panel <- data.table::copy(data.table::as.data.table(panel))
+  neg_panel <- data.table::copy(inf_panel)
+  neg_panel[is.infinite(g), g := -1]   # never-treated as a negative code
+
+  es_inf <- did.event.study(inf_panel, "y", "g", "year", "id",
+                            pre.window = -4:-1, post.window = 0:3,
+                            verbose = FALSE)
+  es_neg <- did.event.study(neg_panel, "y", "g", "year", "id",
+                            pre.window = -4:-1, post.window = 0:3,
+                            verbose = FALSE)
+
+  expect_equal(es_neg$coefficients$estimate, es_inf$coefficients$estimate)
+  expect_equal(es_neg$avg.post.effect$estimate, es_inf$avg.post.effect$estimate)
+  expect_equal(es_neg$n.treated, es_inf$n.treated)
+})

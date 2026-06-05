@@ -34,7 +34,11 @@
 did.simple <- function(data, yname, gname, tname, idname, cluster.var = NULL,
                        verbose = TRUE) {
   if (is.null(cluster.var)) cluster.var <- idname
-  dt <- as.data.table(data)
+  dt <- as.data.table(copy(data))
+
+  # didimputation reads never-treated only as 0/NA, so map every never-treated
+  # code (NA/Inf/non-positive) to 0 before estimation.
+  dt[, (gname) := code_never_treated(get(gname), "zero")]
 
   unit.treated <- dt[, .(is.treated = any(!is_never_treated(get(gname)))),
                      by = c(idname)]
@@ -89,6 +93,10 @@ did.event.study <- function(data, yname, gname, tname, idname,
                             trends.lin = FALSE, verbose = TRUE) {
   if (is.null(cluster.var)) cluster.var <- idname
   dt <- as.data.table(copy(data))
+
+  # didimputation reads never-treated only as 0/NA, so map every never-treated
+  # code (NA/Inf/non-positive) to 0 before estimation.
+  dt[, (gname) := code_never_treated(get(gname), "zero")]
 
   # Optionally pre-residualize the outcome on unit-specific pre-treatment linear
   # trends -- a robustness check that absorbs differential trends.
