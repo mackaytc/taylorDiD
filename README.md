@@ -32,7 +32,7 @@ install.packages("polars", repos = "https://rpolars.r-universe.dev")
 ```
 
 To pin a version for a specific paper, install a tagged release, e.g.
-`remotes::install_github("mackaytc/taylorDiD@v0.1.0")`.
+`remotes::install_github("mackaytc/taylorDiD@v0.1.1")`.
 
 ## Quick start
 
