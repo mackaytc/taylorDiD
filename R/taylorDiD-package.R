@@ -15,7 +15,7 @@
 
 #' @import data.table
 #' @import ggplot2
-#' @importFrom stats pf pnorm pchisq qnorm lm coef vcov nobs as.formula
+#' @importFrom stats pf pnorm qnorm lm coef vcov nobs as.formula
 NULL
 
 # Column names used unquoted inside dt[...] (data.table NSE) and ggplot aes().

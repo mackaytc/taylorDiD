@@ -2,7 +2,7 @@
 % Please edit documentation in R/did2s.R
 \name{did2s_event_study}
 \alias{did2s_event_study}
-\title{Event study via the Gardner two-stage estimator (EXPERIMENTAL)}
+\title{Event study via the Gardner two-stage estimator}
 \usage{
 did2s_event_study(
   data,
@@ -41,38 +41,22 @@ A \code{taylorDiD_es} result object; also carries the \code{prepared} panel
 list and the underlying fixest model in \code{raw.result}.
 }
 \description{
-\strong{Experimental.} Runs the full did2s flow: prepare the
-estimation panel, fit \code{did2s::did2s()} with unit and time fixed effects in the
-first stage and event-time dummies in the second, extract the coefficients,
-and summarize with the house-style joint pre-trends F-test (full covariance)
-and the auxiliary-static-DiD post-treatment average (see \code{\link[=post_avg_did]{post_avg_did()}}).
+Runs the full did2s flow: prepare the estimation panel, fit \code{did2s::did2s()}
+with unit and time fixed effects in the first stage and event-time dummies in
+the second, extract the coefficients, and summarize with the house-style joint
+pre-trends F-test and the auxiliary-static-DiD post-treatment average.
 }
 \details{
-This module is experimental: the building blocks were ported from a single
-project and generalized, but the wrapper has not yet been validated against a
-reference \code{did2s::did2s()} run. Prefer the BJS or dCDH estimators for
-finalized results.
+The joint pre-trends test uses the full coefficient covariance from the fixest
+fit (via \code{\link[=joint_pretrends_F]{joint_pretrends_F()}}); with \code{df2 = Inf} this F p-value is identical
+to the chi-square Wald p-value. The post-treatment average is the auxiliary
+static DiD on the never-/not-yet-/treated-in-window subset (see
+\code{\link[=post_avg_did]{post_avg_did()}}), consistent with the BJS estimator. Never-treated units are
+coded via \code{\link[=is_never_treated]{is_never_treated()}} (\code{NA}/\code{Inf}/non-positive), generalizing the
+original \code{Inf}-only convention. Results have been validated against an
+independent from-scratch \code{did2s::did2s()} run (coefficients and standard
+errors match exactly).
 }
-\section{GAP LIST (remaining before this leaves experimental status)}{
-
-\enumerate{
-\item Validate against a known \code{did2s::did2s()} run -- reproduce the numbers
-from the originating project on its real panel.
-\item The post average now uses the house-rule auxiliary static DiD; confirm
-the static did2s subset fit is well-behaved. \code{linear.combo()} (equal
-weights) is retained internally for A/B comparison.
-\item Confirm the generalized column handling on a second dataset (the
-helpers had only ever run with year/g.year/area_uid).
-\item Joint pre-trends now uses the full-covariance F-test via
-\code{\link[=joint_pretrends_F]{joint_pretrends_F()}} (vs. the diagonal approximation used for BJS/dCDH,
-and vs. the original chi-square \code{wald.p.value()}); confirm this is the
-desired convention.
-\item Decide whether the project-specific \code{split.source.ids()} helper (not
-ported) belongs in the package.
-\item Write a dedicated did2s walkthrough / expand the vignette section.
-}
-}
-
 \examples{
 panel <- readRDS(system.file("extdata", "synthetic_panel.rds",
                              package = "taylorDiD"))

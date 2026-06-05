@@ -19,7 +19,7 @@ helpers behind one consistent interface. It wraps three estimators:
 
 - **BJS imputation** (Borusyak, Jaravel, and Spiess) via `didimputation`,
 - **dCDH** (de Chaisemartin and D'Haultfoeuille) via `DIDmultiplegtDYN`, and
-- **did2s** (Gardner two-stage) via `did2s` -- *experimental* this release.
+- **did2s** (Gardner two-stage) via `did2s`.
 
 Every estimator returns the same result object and shares one set of house-style
 conventions: unit-clustered standard errors, a joint pre-trends F-test, a
@@ -108,19 +108,28 @@ dcdh_cont <- did.event.study.dyn(panel, yname = "y", dname = "d", tname = "year"
 > static-DiD analog, so its natural aggregate is the mean of the period-specific
 > effects. This is a deliberate, documented exception to the house rule.
 
-## did2s (experimental)
+## did2s (Gardner two-stage)
 
-`did2s_event_study()` runs the full Gardner two-stage flow -- prepare the panel,
-fit `did2s::did2s()`, extract coefficients, and summarize. It is **experimental**
-this release: the building blocks were ported from a single project and
-generalized, but the wrapper has not been validated against a reference run.
-See `?did2s_event_study` for the GAP LIST.
+`did2s_event_study()` runs the full two-stage flow: prepare the panel, fit
+`did2s::did2s()` with unit and time fixed effects in the first stage and
+event-time dummies in the second, then summarize with the same joint pre-trends
+F-test and auxiliary-static-DiD post-average as the BJS estimator. Never-treated
+units use the shared coding (`NA`/`Inf`/non-positive). The omitted reference is
+event time -1.
 
-```{r, eval = requireNamespace("did2s", quietly = TRUE)}
+```{r}
 es_did2s <- did2s_event_study(panel, yname = "y", gname = "g", tname = "year",
                               idname = "id", pre.window = -4:-1,
                               post.window = 0:3, verbose = FALSE)
 es_did2s$coefficients[, .(event.time, estimate, std.error, p.value)]
+```
+
+```{r}
+plot_event_study(es_did2s, y.title = "Effect on y")
+```
+
+```{r}
+cat(tex_event_study_table(es_did2s, model.names = "did2s"), sep = "\n")
 ```
 
 ## Shared conventions

@@ -2,16 +2,14 @@
 #
 # FILE: did2s.R
 #
-# OVERVIEW: EXPERIMENTAL module for the Gardner (2021) two-stage estimator via
-# did2s::did2s(). Ported from a single project's building blocks, generalized
-# off the hardcoded column names (year / g.year / area_uid) to the standard
-# tname / gname / idname parameters, and wrapped in a top-level
+# OVERVIEW: Gardner (2021) two-stage estimator via did2s::did2s(). Generalized
+# off the original project's hardcoded column names (year / g.year / area_uid) to
+# the standard tname / gname / idname parameters, and wrapped in a top-level
 # did2s_event_study() that runs the full flow and returns the shared result
-# object.
+# object. Validated against an independent from-scratch did2s::did2s() run
+# (coefficients and standard errors match exactly).
 #
-# STATUS: experimental. The internal helpers below are not exported. See the
-# GAP LIST in the did2s_event_study() documentation for what remains before this
-# module reaches the maturity of the BJS and dCDH estimators.
+# The internal helpers below are not exported.
 #
 # AUTHOR: Taylor Mackay (tmackay@fullerton.edu)
 #
@@ -128,52 +126,23 @@ extract.did2s.coefficients <- function(model, event.map) {
   out[, .(term, event.time, estimate, std.error, p.value, conf.low, conf.high)]
 }
 
-# Chi-square joint Wald p-value (the original did2s pre-trends test). Retained
-# for A/B comparison against the house-style F-test in joint_pretrends_F().
-# @noRd
-wald.p.value <- function(model, terms) {
-  terms <- terms[terms %in% names(coef(model))]
-  if (length(terms) == 0) return(NA_real_)
-  beta <- coef(model)[terms]
-  variance <- as.matrix(vcov(model)[terms, terms, drop = FALSE])
-  tryCatch({
-    wald <- as.numeric(t(beta) %*% qr.solve(variance, beta))
-    pchisq(wald, df = length(terms), lower.tail = FALSE)
-  }, error = function(e) NA_real_)
-}
-
-# Equal-weighted linear combination of coefficients (the original did2s
-# post-period summary). Retained for A/B comparison against the house-rule
-# auxiliary static DiD in post_avg_did().
-# @noRd
-linear.combo <- function(model, terms) {
-  terms <- terms[terms %in% names(coef(model))]
-  if (length(terms) == 0) {
-    return(list(estimate = NA_real_, std.error = NA_real_, p.value = NA_real_))
-  }
-  weights <- rep(1 / length(terms), length(terms))
-  beta <- coef(model)[terms]
-  variance <- as.matrix(vcov(model)[terms, terms, drop = FALSE])
-  estimate <- as.numeric(sum(weights * beta))
-  std.error <- tryCatch(as.numeric(sqrt(t(weights) %*% variance %*% weights)),
-                        error = function(e) NA_real_)
-  p.value <- if (is.na(std.error) || std.error == 0) NA_real_
-             else 2 * pnorm(-abs(estimate / std.error))
-  list(estimate = estimate, std.error = std.error, p.value = p.value)
-}
-
-#' Event study via the Gardner two-stage estimator (EXPERIMENTAL)
+#' Event study via the Gardner two-stage estimator
 #'
-#' \strong{Experimental.} Runs the full did2s flow: prepare the
-#' estimation panel, fit `did2s::did2s()` with unit and time fixed effects in the
-#' first stage and event-time dummies in the second, extract the coefficients,
-#' and summarize with the house-style joint pre-trends F-test (full covariance)
-#' and the auxiliary-static-DiD post-treatment average (see [post_avg_did()]).
+#' Runs the full did2s flow: prepare the estimation panel, fit `did2s::did2s()`
+#' with unit and time fixed effects in the first stage and event-time dummies in
+#' the second, extract the coefficients, and summarize with the house-style joint
+#' pre-trends F-test and the auxiliary-static-DiD post-treatment average.
 #'
-#' This module is experimental: the building blocks were ported from a single
-#' project and generalized, but the wrapper has not yet been validated against a
-#' reference `did2s::did2s()` run. Prefer the BJS or dCDH estimators for
-#' finalized results.
+#' @details
+#' The joint pre-trends test uses the full coefficient covariance from the fixest
+#' fit (via [joint_pretrends_F()]); with `df2 = Inf` this F p-value is identical
+#' to the chi-square Wald p-value. The post-treatment average is the auxiliary
+#' static DiD on the never-/not-yet-/treated-in-window subset (see
+#' [post_avg_did()]), consistent with the BJS estimator. Never-treated units are
+#' coded via [is_never_treated()] (`NA`/`Inf`/non-positive), generalizing the
+#' original `Inf`-only convention. Results have been validated against an
+#' independent from-scratch `did2s::did2s()` run (coefficients and standard
+#' errors match exactly).
 #'
 #' @param data Data frame or data.table.
 #' @param yname Outcome variable name (string).
@@ -187,24 +156,6 @@ linear.combo <- function(model, terms) {
 #' @param verbose If `TRUE` (default), print a console summary.
 #' @return A `taylorDiD_es` result object; also carries the `prepared` panel
 #'   list and the underlying fixest model in `raw.result`.
-#'
-#' @section GAP LIST (remaining before this leaves experimental status):
-#' \enumerate{
-#'   \item Validate against a known `did2s::did2s()` run -- reproduce the numbers
-#'     from the originating project on its real panel.
-#'   \item The post average now uses the house-rule auxiliary static DiD; confirm
-#'     the static did2s subset fit is well-behaved. `linear.combo()` (equal
-#'     weights) is retained internally for A/B comparison.
-#'   \item Confirm the generalized column handling on a second dataset (the
-#'     helpers had only ever run with year/g.year/area_uid).
-#'   \item Joint pre-trends now uses the full-covariance F-test via
-#'     [joint_pretrends_F()] (vs. the diagonal approximation used for BJS/dCDH,
-#'     and vs. the original chi-square `wald.p.value()`); confirm this is the
-#'     desired convention.
-#'   \item Decide whether the project-specific `split.source.ids()` helper (not
-#'     ported) belongs in the package.
-#'   \item Write a dedicated did2s walkthrough / expand the vignette section.
-#' }
 #'
 #' @examples
 #' panel <- readRDS(system.file("extdata", "synthetic_panel.rds",

@@ -10,7 +10,7 @@ It wraps three estimators behind a common interface and a shared result object:
 |---|---|---|
 | BJS imputation (Borusyak, Jaravel, Spiess) | `didimputation` | stable |
 | dCDH (de Chaisemartin & D'Haultfoeuille) | `DIDmultiplegtDYN` | stable |
-| did2s (Gardner two-stage) | `did2s` | **experimental** |
+| did2s (Gardner two-stage) | `did2s` | stable |
 
 All estimators share the same house-style conventions: standard errors clustered
 at the unit level, a joint pre-trends F-test, a post-treatment average effect,
@@ -77,22 +77,16 @@ See `vignette("walkthrough", package = "taylorDiD")` for the full tour.
 - **Result object** (`taylorDiD_es`): bundles coefficients, pre-trends test,
   average effect, pre-treatment mean, and N; consumed by the plot/table builders.
 
-## did2s status (experimental)
+## did2s notes
 
-did2s is scaffolded this release: the ported helpers are generalized off their
-original hardcoded column names and unit-tested, and `did2s_event_study()` runs
-the full flow, but the module has not been validated against a reference
-`did2s::did2s()` run. The GAP LIST lives in `?did2s_event_study`:
-
-1. Validate against a known `did2s::did2s()` run on a real panel.
-2. Confirm the auxiliary-static-DiD post average (the equal-weighted
-   `linear.combo` is retained internally for A/B comparison).
-3. Confirm the generalized column handling on a second dataset.
-4. Confirm the full-covariance F-test convention for pre-trends.
-5. Decide whether the project-specific `split.source.ids` helper belongs here.
-6. Write a dedicated did2s walkthrough.
-
-Prefer the BJS or dCDH estimators for finalized results.
+did2s shares the same interface, result object, conventions, and plot/table
+builders as BJS and dCDH. Its output is validated against an independent
+from-scratch `did2s::did2s()` run (coefficients and standard errors match
+exactly), and the data preparation is verified to be invariant to column names.
+The estimator codes never-treated units via the shared `is_never_treated()`
+(`NA`/`Inf`/non-positive), uses the full-covariance joint pre-trends F-test
+(identical to the chi-square Wald p-value at `df2 = Inf`), and the omitted
+event-study reference is event time -1.
 
 ## License
 
