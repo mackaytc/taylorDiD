@@ -2,12 +2,11 @@
 #
 # FILE: did2s.R
 #
-# OVERVIEW: Gardner (2021) two-stage estimator via did2s::did2s(). Generalized
-# off the original project's hardcoded column names (year / g.year / area_uid) to
-# the standard tname / gname / idname parameters, and wrapped in a top-level
-# did2s_event_study() that runs the full flow and returns the shared result
-# object. Validated against an independent from-scratch did2s::did2s() run
-# (coefficients and standard errors match exactly).
+# OVERVIEW: Gardner (2021) two-stage estimator via did2s::did2s(). A top-level
+# did2s_event_study() prepares the panel, fits the two-stage model, extracts the
+# event-study coefficients, and returns the shared result object. Outcome, time,
+# unit, and treatment timing enter as the yname / tname / idname / gname
+# parameters.
 #
 # The internal helpers below are not exported.
 #
@@ -135,14 +134,11 @@ extract.did2s.coefficients <- function(model, event.map) {
 #'
 #' @details
 #' The joint pre-trends test uses the full coefficient covariance from the fixest
-#' fit (via [joint_pretrends_F()]); with `df2 = Inf` this F p-value is identical
-#' to the chi-square Wald p-value. The post-treatment average is the auxiliary
-#' static DiD on the never-/not-yet-/treated-in-window subset (see
-#' [post_avg_did()]), consistent with the BJS estimator. Never-treated units are
-#' coded via [is_never_treated()] (`NA`/`Inf`/non-positive), generalizing the
-#' original `Inf`-only convention. Results have been validated against an
-#' independent from-scratch `did2s::did2s()` run (coefficients and standard
-#' errors match exactly).
+#' fit (via [joint_pretrends_F()]); with `df2 = Inf` this F p-value equals the
+#' chi-square Wald p-value. The post-treatment average is the auxiliary static
+#' DiD on the never-/not-yet-/treated-in-window subset (see [post_avg_did()]), as
+#' in the BJS estimator. Never-treated units are coded via [is_never_treated()]
+#' (`NA`/`Inf`/non-positive). The omitted event-study reference is event time -1.
 #'
 #' @param data Data frame or data.table.
 #' @param yname Outcome variable name (string).

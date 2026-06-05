@@ -103,10 +103,10 @@ dcdh_cont <- did.event.study.dyn(panel, yname = "y", dname = "d", tname = "year"
                                  normalized = TRUE, verbose = FALSE)
 ```
 
-> Note: the dCDH post-treatment average is the mean of the dynamic effects, not
-> the auxiliary static DiD used by BJS. The dCDH estimator has no clean
-> static-DiD analog, so its natural aggregate is the mean of the period-specific
-> effects. This is a deliberate, documented exception to the house rule.
+> Note: the dCDH post-treatment average is the mean of the dynamic effects (the
+> BJS and did2s estimators instead use an auxiliary static DiD). The dCDH
+> estimator has no clean static-DiD analog, so its natural aggregate is the mean
+> of the period-specific effects.
 
 ## did2s (Gardner two-stage)
 

@@ -4,10 +4,9 @@
 #
 # OVERVIEW: Event-study plotting. plot_event_study() is the shared ggplot with
 # the house defaults (point estimates, 95% CI errorbars, dashed zero line, serif
-# font). The two retained wrappers -- did.event.study.plot() (BJS-style, with a
-# diagnostic caption) and did.event.study.plot.dyn() (dCDH-style, with y-axis
-# titles) -- preserve the original call signatures and return both the plot(s)
-# and the two-panel LaTeX table.
+# font). Two wrappers -- did.event.study.plot() (with a diagnostic caption) and
+# did.event.study.plot.dyn() (with per-model y-axis titles) -- return both the
+# plot(s) and the two-panel LaTeX table.
 #
 # AUTHOR: Taylor Mackay (tmackay@fullerton.edu)
 #
@@ -84,8 +83,7 @@ es_caption <- function(result) {
 #' Event-study plot and LaTeX table (BJS-style)
 #'
 #' Produces a diagnostic-captioned event-study plot per model and the two-panel
-#' LaTeX table. Retained for backward compatibility with existing project code;
-#' delegates to [plot_event_study()] and [tex_event_study_table()].
+#' LaTeX table, built on [plot_event_study()] and [tex_event_study_table()].
 #'
 #' @param es.results A single `taylorDiD_es` object or a list of them.
 #' @param model.names Optional column/title names (one per model).
@@ -130,8 +128,8 @@ did.event.study.plot <- function(es.results, model.names = NULL,
 #' Event-study plot and LaTeX table (dCDH-style)
 #'
 #' Produces a clean event-study plot per model (no caption, with per-model y-axis
-#' titles) and the two-panel LaTeX table. Retained for backward compatibility;
-#' delegates to [plot_event_study()] and [tex_event_study_table()].
+#' titles) and the two-panel LaTeX table, built on [plot_event_study()] and
+#' [tex_event_study_table()].
 #'
 #' @inheritParams did.event.study.plot
 #' @param y.titles Optional y-axis titles (one per model; default: `model.names`).

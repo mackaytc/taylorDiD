@@ -3,8 +3,8 @@ Title: Modern Difference-in-Differences and Event-Study Helpers
 Version: 0.1.0
 Authors@R:
     person("Taylor", "Mackay", , "tmackay@fullerton.edu", role = c("aut", "cre"))
-Description: A consolidated set of helper functions for modern
-    difference-in-differences and event-study estimation. Wraps the BJS
+Description: Helper functions for modern difference-in-differences and
+    event-study estimation. Wraps the BJS
     imputation estimator (Borusyak, Jaravel, and Spiess) via 'didimputation',
     the de Chaisemartin and D'Haultfoeuille estimator via 'DIDmultiplegtDYN',
     and the Gardner two-stage estimator via 'did2s'. Encodes a consistent set

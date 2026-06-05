@@ -48,14 +48,11 @@ pre-trends F-test and the auxiliary-static-DiD post-treatment average.
 }
 \details{
 The joint pre-trends test uses the full coefficient covariance from the fixest
-fit (via \code{\link[=joint_pretrends_F]{joint_pretrends_F()}}); with \code{df2 = Inf} this F p-value is identical
-to the chi-square Wald p-value. The post-treatment average is the auxiliary
-static DiD on the never-/not-yet-/treated-in-window subset (see
-\code{\link[=post_avg_did]{post_avg_did()}}), consistent with the BJS estimator. Never-treated units are
-coded via \code{\link[=is_never_treated]{is_never_treated()}} (\code{NA}/\code{Inf}/non-positive), generalizing the
-original \code{Inf}-only convention. Results have been validated against an
-independent from-scratch \code{did2s::did2s()} run (coefficients and standard
-errors match exactly).
+fit (via \code{\link[=joint_pretrends_F]{joint_pretrends_F()}}); with \code{df2 = Inf} this F p-value equals the
+chi-square Wald p-value. The post-treatment average is the auxiliary static
+DiD on the never-/not-yet-/treated-in-window subset (see \code{\link[=post_avg_did]{post_avg_did()}}), as
+in the BJS estimator. Never-treated units are coded via \code{\link[=is_never_treated]{is_never_treated()}}
+(\code{NA}/\code{Inf}/non-positive). The omitted event-study reference is event time -1.
 }
 \examples{
 panel <- readRDS(system.file("extdata", "synthetic_panel.rds",

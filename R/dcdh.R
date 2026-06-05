@@ -10,9 +10,8 @@
 # use pretreat_mean_dyn().
 #
 # NOTE: the post-treatment average here is the mean of the dynamic effects (with
-# a conservative pooled SE), NOT the house-rule auxiliary static DiD. The dCDH
-# estimator has no clean static-DiD analog; its natural aggregate is the mean of
-# the period-specific effects. This is a deliberate, documented exception.
+# a conservative pooled SE), because the dCDH estimator has no clean static-DiD
+# analog; its natural aggregate is the mean of the period-specific effects.
 #
 # AUTHOR: Taylor Mackay (tmackay@fullerton.edu)
 #
@@ -156,9 +155,9 @@ did.simple.dyn <- function(data, yname, dname, tname, idname,
 #' Event study via the de Chaisemartin & D'Haultfoeuille estimator
 #'
 #' Estimates dynamic (event-study) effects with `n.pre` placebos and `n.post`
-#' effects, a joint pre-trends F-test, and a post-treatment average effect (mean
-#' of the dynamic effects -- see the file note for why this departs from the
-#' house-rule auxiliary static DiD).
+#' effects, a joint pre-trends F-test, and a post-treatment average effect (the
+#' mean of the dynamic effects, since the dCDH estimator has no clean static-DiD
+#' analog).
 #'
 #' @inheritParams did.simple.dyn
 #' @param n.pre Number of pre-treatment periods (placebos).

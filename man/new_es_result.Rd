@@ -35,9 +35,8 @@ new_es_result(
 An object of class \code{taylorDiD_es} (a named list).
 }
 \description{
-Bundles the pieces of an event study into a \code{taylorDiD_es} object consumed by
-\code{\link[=plot_event_study]{plot_event_study()}} and \code{\link[=tex_event_study_table]{tex_event_study_table()}}. The field layout matches
-the lists the original helpers returned, so existing \code{$} access keeps working;
-this only adds an S3 class and an \code{estimator} tag.
+Bundles the pieces of an event study into a \code{taylorDiD_es} object (a named
+list with an \code{estimator} tag) consumed by \code{\link[=plot_event_study]{plot_event_study()}} and
+\code{\link[=tex_event_study_table]{tex_event_study_table()}}. Fields are accessible with \code{$}.
 }
 \keyword{internal}

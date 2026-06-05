@@ -26,8 +26,7 @@ lines).
 }
 \description{
 Produces a diagnostic-captioned event-study plot per model and the two-panel
-LaTeX table. Retained for backward compatibility with existing project code;
-delegates to \code{\link[=plot_event_study]{plot_event_study()}} and \code{\link[=tex_event_study_table]{tex_event_study_table()}}.
+LaTeX table, built on \code{\link[=plot_event_study]{plot_event_study()}} and \code{\link[=tex_event_study_table]{tex_event_study_table()}}.
 }
 \examples{
 es <- new_es_result(

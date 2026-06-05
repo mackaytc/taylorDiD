@@ -1,8 +1,7 @@
 # taylorDiD
 
-Modern difference-in-differences and event-study helpers, consolidated into one
-installable package so every project loads the same code instead of hand-copying
-helper files between `code/utility-code/` folders.
+Modern difference-in-differences and event-study helpers in one installable
+package, providing a single consistent implementation across projects.
 
 It wraps three estimators behind a common interface and a shared result object:
 
@@ -51,7 +50,7 @@ bjs <- did.event.study(panel, yname = "y", gname = "g", tname = "year",
 dcdh <- did.event.study.dyn(panel, yname = "y", dname = "treat", tname = "year",
                             idname = "id", n.pre = 3, n.post = 3)
 
-# did2s (experimental)
+# did2s (Gardner two-stage) event study
 es <- did2s_event_study(panel, yname = "y", gname = "g", tname = "year",
                         idname = "id", pre.window = -4:-1, post.window = 0:3)
 
@@ -71,22 +70,10 @@ See `vignette("walkthrough", package = "taylorDiD")` for the full tour.
   F with `df2 = Inf`. Full covariance where available (did2s), diagonal
   approximation otherwise (BJS/dCDH).
 - **Post-treatment average**: an auxiliary static DiD on the
-  never-/not-yet-/treated-in-window subset (BJS, did2s). dCDH instead uses the
-  mean of the dynamic effects, since it has no clean static-DiD analog -- a
-  deliberate, documented exception.
+  never-/not-yet-/treated-in-window subset (BJS, did2s). dCDH uses the mean of
+  the dynamic effects, since it has no clean static-DiD analog.
 - **Result object** (`taylorDiD_es`): bundles coefficients, pre-trends test,
   average effect, pre-treatment mean, and N; consumed by the plot/table builders.
-
-## did2s notes
-
-did2s shares the same interface, result object, conventions, and plot/table
-builders as BJS and dCDH. Its output is validated against an independent
-from-scratch `did2s::did2s()` run (coefficients and standard errors match
-exactly), and the data preparation is verified to be invariant to column names.
-The estimator codes never-treated units via the shared `is_never_treated()`
-(`NA`/`Inf`/non-positive), uses the full-covariance joint pre-trends F-test
-(identical to the chi-square Wald p-value at `df2 = Inf`), and the omitted
-event-study reference is event time -1.
 
 ## License
 

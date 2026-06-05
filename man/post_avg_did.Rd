@@ -34,10 +34,10 @@ post_avg_did(
 List with \code{estimate}, \code{std.error}, \code{p.value}, \code{pct.change}, \code{window}.
 }
 \description{
-Implements the house rule for the summary post-treatment effect: rather than
-averaging the event-study coefficients, fit a static DiD on the subset of
-never-treated, not-yet-treated, and treated-within-window observations
-(\code{event_time \%in\% 0:max(post.window)}). Supported for the imputation (\code{"bjs"})
-and two-stage (\code{"did2s"}) estimators.
+Computes the summary post-treatment effect by fitting a static DiD on the
+subset of never-treated, not-yet-treated, and treated-within-window
+observations (\code{event_time \%in\% 0:max(post.window)}), rather than averaging the
+event-study coefficients. Supported for the imputation (\code{"bjs"}) and two-stage
+(\code{"did2s"}) estimators.
 }
 \keyword{internal}

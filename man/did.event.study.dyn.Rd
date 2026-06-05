@@ -52,9 +52,9 @@ A \code{taylorDiD_es} result object; also carries \code{continuous},
 }
 \description{
 Estimates dynamic (event-study) effects with \code{n.pre} placebos and \code{n.post}
-effects, a joint pre-trends F-test, and a post-treatment average effect (mean
-of the dynamic effects -- see the file note for why this departs from the
-house-rule auxiliary static DiD).
+effects, a joint pre-trends F-test, and a post-treatment average effect (the
+mean of the dynamic effects, since the dCDH estimator has no clean static-DiD
+analog).
 }
 \examples{
 panel <- readRDS(system.file("extdata", "synthetic_panel.rds",

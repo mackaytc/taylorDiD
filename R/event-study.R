@@ -4,7 +4,7 @@
 #
 # OVERVIEW: The shared result objects that every estimator returns, their print
 # methods (which hold the console summary so the estimator bodies stay quiet),
-# and post_avg_did() -- the house-rule auxiliary static DiD used to summarize the
+# and post_avg_did() -- the auxiliary static DiD that summarizes the
 # post-treatment average effect.
 #
 # Two S3 classes:
@@ -58,10 +58,9 @@ new_did_result <- function(estimate, std.error, p.value, pre.mean.treated,
 
 #' Construct an event-study result object
 #'
-#' Bundles the pieces of an event study into a `taylorDiD_es` object consumed by
-#' [plot_event_study()] and [tex_event_study_table()]. The field layout matches
-#' the lists the original helpers returned, so existing `$` access keeps working;
-#' this only adds an S3 class and an `estimator` tag.
+#' Bundles the pieces of an event study into a `taylorDiD_es` object (a named
+#' list with an `estimator` tag) consumed by [plot_event_study()] and
+#' [tex_event_study_table()]. Fields are accessible with `$`.
 #'
 #' @param coefficients data.table of coefficient-by-event-time estimates.
 #' @param pre.mean.treated Pre-treatment outcome mean for treated units.
@@ -135,11 +134,11 @@ print.taylorDiD_es <- function(x, digits = 4, ...) {
 
 #' Post-treatment average effect via an auxiliary static DiD
 #'
-#' Implements the house rule for the summary post-treatment effect: rather than
-#' averaging the event-study coefficients, fit a static DiD on the subset of
-#' never-treated, not-yet-treated, and treated-within-window observations
-#' (`event_time %in% 0:max(post.window)`). Supported for the imputation (`"bjs"`)
-#' and two-stage (`"did2s"`) estimators.
+#' Computes the summary post-treatment effect by fitting a static DiD on the
+#' subset of never-treated, not-yet-treated, and treated-within-window
+#' observations (`event_time %in% 0:max(post.window)`), rather than averaging the
+#' event-study coefficients. Supported for the imputation (`"bjs"`) and two-stage
+#' (`"did2s"`) estimators.
 #'
 #' @param data Data frame or data.table (already detrended if applicable).
 #' @param yname,gname,tname,idname Column names (strings).

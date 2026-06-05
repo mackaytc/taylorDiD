@@ -28,8 +28,8 @@ List with \code{plots} and \code{table}.
 }
 \description{
 Produces a clean event-study plot per model (no caption, with per-model y-axis
-titles) and the two-panel LaTeX table. Retained for backward compatibility;
-delegates to \code{\link[=plot_event_study]{plot_event_study()}} and \code{\link[=tex_event_study_table]{tex_event_study_table()}}.
+titles) and the two-panel LaTeX table, built on \code{\link[=plot_event_study]{plot_event_study()}} and
+\code{\link[=tex_event_study_table]{tex_event_study_table()}}.
 }
 \examples{
 es <- new_es_result(

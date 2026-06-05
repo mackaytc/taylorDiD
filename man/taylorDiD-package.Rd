@@ -6,7 +6,7 @@
 \alias{taylorDiD-package}
 \title{taylorDiD: Modern Difference-in-Differences and Event-Study Helpers}
 \description{
-A consolidated set of helper functions for modern difference-in-differences and event-study estimation. Wraps the BJS imputation estimator (Borusyak, Jaravel, and Spiess) via 'didimputation', the de Chaisemartin and D'Haultfoeuille estimator via 'DIDmultiplegtDYN', and the Gardner two-stage estimator via 'did2s'. Encodes a consistent set of house-style conventions: unit-clustered standard errors, joint pre-trends F-tests, post-treatment average effects, a shared event-study result object, and publication-ready event-study plots and two-panel LaTeX tables.
+Helper functions for modern difference-in-differences and event-study estimation. Wraps the BJS imputation estimator (Borusyak, Jaravel, and Spiess) via 'didimputation', the de Chaisemartin and D'Haultfoeuille estimator via 'DIDmultiplegtDYN', and the Gardner two-stage estimator via 'did2s'. Encodes a consistent set of house-style conventions: unit-clustered standard errors, joint pre-trends F-tests, post-treatment average effects, a shared event-study result object, and publication-ready event-study plots and two-panel LaTeX tables.
 }
 \seealso{
 Useful links:
