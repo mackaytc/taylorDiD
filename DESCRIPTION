@@ -1,0 +1,40 @@
+Package: taylorDiD
+Title: Modern Difference-in-Differences and Event-Study Helpers
+Version: 0.1.0
+Authors@R:
+    person("Taylor", "Mackay", , "tmackay@fullerton.edu", role = c("aut", "cre"))
+Description: A consolidated set of helper functions for modern
+    difference-in-differences and event-study estimation. Wraps the BJS
+    imputation estimator (Borusyak, Jaravel, and Spiess) via 'didimputation',
+    the de Chaisemartin and D'Haultfoeuille estimator via 'DIDmultiplegtDYN',
+    and the Gardner two-stage estimator via 'did2s'. Encodes a consistent set
+    of house-style conventions: unit-clustered standard errors, joint
+    pre-trends F-tests, post-treatment average effects, a shared event-study
+    result object, and publication-ready event-study plots and two-panel
+    LaTeX tables.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
+Depends:
+    R (>= 4.1)
+Imports:
+    data.table,
+    DIDmultiplegtDYN,
+    did2s,
+    didimputation,
+    fixest,
+    ggplot2,
+    stats
+Suggests:
+    knitr,
+    polars,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Remotes:
+    kylebutts/didimputation
+Additional_repositories: https://rpolars.r-universe.dev
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/mackaytc/taylorDiD
+BugReports: https://github.com/mackaytc/taylorDiD/issues

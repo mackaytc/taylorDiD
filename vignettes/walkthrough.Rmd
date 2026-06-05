@@ -1,0 +1,141 @@
+---
+title: "taylorDiD: modern DiD and event-study helpers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{taylorDiD walkthrough}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE,
+  fig.width = 7, fig.height = 4.5
+)
+```
+
+`taylorDiD` consolidates a set of difference-in-differences and event-study
+helpers behind one consistent interface. It wraps three estimators:
+
+- **BJS imputation** (Borusyak, Jaravel, and Spiess) via `didimputation`,
+- **dCDH** (de Chaisemartin and D'Haultfoeuille) via `DIDmultiplegtDYN`, and
+- **did2s** (Gardner two-stage) via `did2s` -- *experimental* this release.
+
+Every estimator returns the same result object and shares one set of house-style
+conventions: unit-clustered standard errors, a joint pre-trends F-test, a
+post-treatment average effect, the pre-treatment outcome mean, and matching plot
+and LaTeX-table builders.
+
+```{r}
+library(taylorDiD)
+
+panel <- readRDS(system.file("extdata", "synthetic_panel.rds",
+                             package = "taylorDiD"))
+head(panel)
+```
+
+## The example panel
+
+One row is a unit-year. `id` is the unit, `year` the period, `g` the treatment
+cohort (the year a unit first adopts; `Inf` for never-treated), `treat` the
+binary absorbing treatment, `d` a non-binary treatment intensity, and `y` the
+outcome. The data are simulated with a positive post-treatment effect that ramps
+with event time.
+
+```{r}
+str(panel)
+table(cohort = panel$g[!duplicated(panel$id)])
+```
+
+## BJS imputation event study
+
+`did.event.study()` returns coefficient-by-event-time estimates, the joint
+pre-trends F-test, and the post-treatment average effect (computed via an
+auxiliary static DiD on the never-/not-yet-/treated-in-window subset).
+
+```{r}
+bjs <- did.event.study(panel, yname = "y", gname = "g", tname = "year",
+                       idname = "id", pre.window = -4:-1, post.window = 0:3,
+                       verbose = FALSE)
+bjs$coefficients[, .(event.time, estimate, std.error, p.value)]
+bjs$avg.post.effect$estimate
+bjs$pretrends.test$p.value
+```
+
+Plot it with the house defaults (point estimates, 95% CI errorbars, dashed zero
+line, serif theme):
+
+```{r}
+plot_event_study(bjs, y.title = "Effect on y")
+```
+
+The two-panel LaTeX table is produced by `tex_event_study_table()` (Panel A =
+coefficients by event time; Panel B = average effect, pre-trends p-value,
+pre-treatment mean, N):
+
+```{r}
+cat(tex_event_study_table(bjs, model.names = "BJS"), sep = "\n")
+```
+
+## dCDH event study
+
+`did.event.study.dyn()` handles binary, discrete, and continuous treatments. It
+takes the number of pre/post periods directly. (DIDmultiplegtDYN needs the
+`polars` package; the wrapper attaches it for you.)
+
+```{r, eval = requireNamespace("polars", quietly = TRUE), results = "hide"}
+dcdh <- did.event.study.dyn(panel, yname = "y", dname = "treat", tname = "year",
+                            idname = "id", n.pre = 3, n.post = 3,
+                            verbose = FALSE)
+```
+
+```{r, eval = requireNamespace("polars", quietly = TRUE)}
+dcdh$coefficients[, .(event.time, estimate, std.error, p.value)]
+plot_event_study(dcdh, y.title = "Effect on y")
+```
+
+For a non-binary treatment, pass the intensity variable and `normalized = TRUE`
+to interpret the coefficient as the effect of a one-unit increase:
+
+```{r, eval = requireNamespace("polars", quietly = TRUE), results = "hide"}
+dcdh_cont <- did.event.study.dyn(panel, yname = "y", dname = "d", tname = "year",
+                                 idname = "id", n.pre = 3, n.post = 3,
+                                 normalized = TRUE, verbose = FALSE)
+```
+
+> Note: the dCDH post-treatment average is the mean of the dynamic effects, not
+> the auxiliary static DiD used by BJS. The dCDH estimator has no clean
+> static-DiD analog, so its natural aggregate is the mean of the period-specific
+> effects. This is a deliberate, documented exception to the house rule.
+
+## did2s (experimental)
+
+`did2s_event_study()` runs the full Gardner two-stage flow -- prepare the panel,
+fit `did2s::did2s()`, extract coefficients, and summarize. It is **experimental**
+this release: the building blocks were ported from a single project and
+generalized, but the wrapper has not been validated against a reference run.
+See `?did2s_event_study` for the GAP LIST.
+
+```{r, eval = requireNamespace("did2s", quietly = TRUE)}
+es_did2s <- did2s_event_study(panel, yname = "y", gname = "g", tname = "year",
+                              idname = "id", pre.window = -4:-1,
+                              post.window = 0:3, verbose = FALSE)
+es_did2s$coefficients[, .(event.time, estimate, std.error, p.value)]
+```
+
+## Shared conventions
+
+- **Never-treated coding.** `is_never_treated()` treats `NA`, `Inf`, and
+  non-positive timing as never-treated; `code_never_treated()` normalizes to a
+  chosen sentinel. This is the single source of truth across estimators.
+- **Joint pre-trends F-test.** `joint_pretrends_F()` reports Wald / n_pre with a
+  p-value from an F with `df2 = Inf`. It uses the full covariance when available
+  (did2s) and a diagonal approximation otherwise (BJS/dCDH).
+- **Result object.** Every event study returns a `taylorDiD_es` object with
+  `coefficients`, `pretrends.test`, `avg.post.effect`, `pre.mean.treated`, and
+  the sample sizes -- consumed directly by the plot and table builders.
+
+```{r}
+class(bjs)
+names(bjs)
+```
